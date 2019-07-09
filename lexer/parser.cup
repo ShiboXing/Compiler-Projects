@@ -1,0 +1,22 @@
+import java_cup.runtime.Symbol;
+
+/* premilinaries to use the scanner */
+
+scan with {: return lexer.next.token()); :};
+parser code {: 
+    ExprLex lexer;
+    public ExprParser(ExprLex lex) 
+    { 
+        super(lex); lexer = lex;
+    } 
+};
+
+
+terminal PLUS,SUBTRACT;
+terminal Integer INT;
+terminal REG;
+terminal LABEL;
+terminal EOL;
+terminal COMA;
+
+non terminal: R_OPS,I_OPS,J_OPS;

@@ -1,0 +1,182 @@
+import java_cup.runtime.Symbol;
+import java.util.ArrayList;
+import java.util.List;
+
+/* premilinaries to use the scanner */
+
+scan with {: 
+    return lexer.next_token(); 
+:};
+init with{:
+    
+:};
+parser code {: 
+    
+    Apocalypse lexer;
+
+    public AParser(Apocalypse lex) 
+    { 
+        super(lex); 
+        lexer = lex;
+    } 
+    
+:};
+
+terminal String REG0,REG1,REG2,REG3;
+terminal ADD,SUB,SLT,XOR;
+terminal ADDI,BEQ,RAND;
+terminal J,LB,SB,HALT,DISP;
+terminal LPAREN,RPAREN;
+terminal String INT;
+terminal LABEL;
+terminal NL;
+terminal ILLEGALCHAR;
+terminal ID;
+
+non terminal List<String> lines;
+non terminal line;
+non terminal ins;
+non terminal num;
+non terminal r_ins;
+non terminal i_ins;
+non terminal j_ins;
+non terminal reg;
+non terminal add;
+non terminal stop;
+
+start with lines;
+
+
+
+stop ::=HALT
+    {:RESULT=(sym.HALT+",");:}
+    ;
+
+lines ::= line:l lines:ls
+    {: 
+        ArrayList line=new ArrayList<String>();
+        line.add(l);
+        line.addAll(ls);
+        RESULT=line; 
+    :}
+    |
+    NL lines:ls
+    {: 
+    RESULT=ls;:}
+    |
+    stop:l lines:ls
+    {: 
+        ArrayList line=new ArrayList<String>();
+        line.add(l);
+        line.addAll(ls);
+        RESULT=line; 
+    :}
+    |
+    {:RESULT=new ArrayList<String>();:}
+    ;
+
+line ::= ins:i NL
+    {:RESULT = i;:}
+    |
+    LABEL:l
+    {:RESULT=sym.LABEL+","+l+",";:}
+    ;
+
+ins ::= r_ins:r
+    {:RESULT = r;:}
+    |
+    i_ins:i
+    {:RESULT = i;:}
+    |
+    j_ins:j
+    {:RESULT = j;:}
+    ;
+
+r_ins ::= ADD reg:rd reg:rs reg:rt
+    {:RESULT=(sym.ADD+","+rd+","+rs+","+rt);:}
+    |
+    SUB reg:rd reg:rs reg:rt
+    {:RESULT=(sym.SUB+","+rd+","+rs+","+rt);:}
+    |
+    XOR reg:rd reg:rs reg:rt
+    {:
+        RESULT=(sym.XOR+","+rd+","+rs+","+rt);
+    :}
+    |
+    SLT reg:rd reg:rs reg:rt
+    {:
+        RESULT=(sym.SLT+","+rd+","+rs+","+rt);
+    :}
+    ;
+
+i_ins ::= SB reg:rt num:n LPAREN reg:rs RPAREN
+    {: 
+        RESULT=(sym.SB+","+rt+","+n+","+rs);
+    :}
+    |
+    LB reg:rt num:n LPAREN reg:rs RPAREN
+    {:
+        RESULT=(sym.LB+","+rt+","+n+","+rs);
+    :}
+    |
+    ADDI reg:rd reg:rt num:n
+    {:
+        RESULT=(sym.ADDI+","+rd+","+rt+","+n);
+    :}
+    |
+    RAND reg:rd reg:rt 
+    {:
+        RESULT=(sym.RAND+","+rd+","+rt);
+    :}
+    |
+    BEQ reg:rs reg:rt num:n
+    {:  RESULT=sym.BEQ+","+rs+","+rt+","+n;:}
+    ;
+
+j_ins ::= DISP reg:rd
+    {: RESULT=(sym.DISP+","+rd); :}
+    |
+    J ID:l
+    {: RESULT=sym.J+","+l+":";:}
+    ;
+
+reg ::= REG0:r
+    {: RESULT = r.charAt(2); :}
+    |
+    REG1:r
+    {: RESULT = r.charAt(2); :}
+    |
+    REG2:r
+    {: RESULT = r.charAt(2); :}
+    |
+    REG3:r
+    {: RESULT = r.charAt(2); :}
+    ;
+
+num ::= INT:i
+    {:
+        byte b;
+        if(i.startsWith("0x"))
+        {
+            b =(byte)Integer.parseInt(i.split("x")[1],16);
+        }
+        else
+        {
+            int j=Integer.parseInt(i);
+            if(j>255 || j<-128)
+            {
+                System.out.println("============\n============\nimmediate value overflowed, exited\n\n\n");
+                System.exit(0);
+            }
+            b =(byte)j;
+        }
+
+        RESULT=b;
+    :}
+;
+
+
+
+
+
+
