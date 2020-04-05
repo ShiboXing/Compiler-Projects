@@ -1,4 +1,4 @@
-BINS = lexer_sol lexer_stu
+BINS = lexer_sol #lexer_stu
 OUTPUTS = $(OUTPUTS_SOL) $(OUTPUTS_STU)
 OUTPUTS_SOL = hello.mjava.sol.out strings.mjava.sol.out test.mjava.sol.out test2.mjava.sol.out
 OUTPUTS_STU = hello.mjava.stu.out strings.mjava.stu.out test.mjava.stu.out test2.mjava.stu.out
